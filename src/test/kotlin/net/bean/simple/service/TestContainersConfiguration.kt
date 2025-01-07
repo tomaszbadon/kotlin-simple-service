@@ -1,6 +1,7 @@
 package net.bean.simple.service
 
 import dasniko.testcontainers.keycloak.KeycloakContainer
+import org.springframework.boot.devtools.restart.RestartScope
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.context.annotation.Bean
@@ -13,6 +14,7 @@ class TestContainersConfiguration {
 
     @Bean
     @ServiceConnection
+    @RestartScope
     fun mysqlContainer(): MySQLContainer<*> {
         return MySQLContainer(DockerImageName.parse("biarms/mysql:5.7")
                                 .asCompatibleSubstituteFor("mysql"))
@@ -22,6 +24,7 @@ class TestContainersConfiguration {
     }
 
     @Bean
+    @RestartScope
     fun keycloakContainer(registry: DynamicPropertyRegistry): KeycloakContainer? {
         val keycloak: KeycloakContainer? = KeycloakContainer("quay.io/keycloak/keycloak:24.0.2")
             .withEnv("DB_VENDOR", "h2")
@@ -37,7 +40,6 @@ class TestContainersConfiguration {
         registry.add(
             "spring.security.oauth2.client.provider.keycloak.token-uri"
         ) { keycloak?.authServerUrl + "/realms/simple-application-realm/protocol/openid-connect/token" }
-
 
         return keycloak
     }

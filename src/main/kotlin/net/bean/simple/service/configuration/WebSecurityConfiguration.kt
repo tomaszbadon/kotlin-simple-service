@@ -1,4 +1,4 @@
-package net.bean.simple.service.config
+package net.bean.simple.service.configuration
 
 import net.bean.simple.service.misc.ApplicationRole
 import org.springframework.beans.factory.annotation.Value

@@ -36,9 +36,10 @@ class WebSecurityConfiguration {
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.csrf { obj: CsrfConfigurer<HttpSecurity> -> obj.disable() }
         http.authorizeHttpRequests({ it.requestMatchers("/api/websocket").permitAll() })
-        http.authorizeHttpRequests({ it.requestMatchers(HttpMethod.GET, "/api/greetings/message/**").hasAnyRole(ApplicationRole.ApplicationUser.name) })
+        http.authorizeHttpRequests({ it.requestMatchers(HttpMethod.GET, "/api/v1/movies/**").hasAnyRole(ApplicationRole.ApplicationUser.name) })
         http.authorizeHttpRequests({ it.requestMatchers(HttpMethod.GET, "/api/greetings/notification/**").hasAnyRole(ApplicationRole.ApplicationAdmin.name) })
         http.authorizeHttpRequests({ it.anyRequest().authenticated() })
+
         http.oauth2ResourceServer({ it.jwt(Customizer.withDefaults()) })
         return http.build()
     }

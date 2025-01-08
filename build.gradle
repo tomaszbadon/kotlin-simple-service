@@ -42,6 +42,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.testcontainers:mysql'
+	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'com.github.dasniko:testcontainers-keycloak:3.3.0'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

@@ -9,6 +9,10 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.utility.DockerImageName
 
+val REALM_NAME = "simple-application-realm"
+val CLENT_ID = "simple-microservice"
+val CLIENT_SECRET = "Y1JUH3DVEeZNXKz9UsRH3Y3SyOLAtkNb"
+
 @TestConfiguration(proxyBeanMethods = false)
 class TestContainersConfiguration {
 
@@ -20,11 +24,11 @@ class TestContainersConfiguration {
                                 .asCompatibleSubstituteFor("mysql"))
             .withDatabaseName("sakila")
             .withUsername("sakila")
-            .withPassword("sakila")
+            .withPassword("sakila");
     }
 
     @Bean
-    @RestartScope
+//    @RestartScope
     fun keycloakContainer(registry: DynamicPropertyRegistry): KeycloakContainer? {
         val keycloak: KeycloakContainer? = KeycloakContainer("quay.io/keycloak/keycloak:24.0.2")
             .withEnv("DB_VENDOR", "h2")
@@ -41,6 +45,15 @@ class TestContainersConfiguration {
             "spring.security.oauth2.client.provider.keycloak.token-uri"
         ) { keycloak?.authServerUrl + "/realms/simple-application-realm/protocol/openid-connect/token" }
 
+        registry.add(
+            "spring.security.oauth2.client.registration.keycloak.client-id"
+        ) { CLENT_ID }
+
+        registry.add(
+            "spring.security.oauth2.client.registration.keycloak.client-secret"
+        ) { CLIENT_SECRET }
+
         return keycloak
     }
+
 }

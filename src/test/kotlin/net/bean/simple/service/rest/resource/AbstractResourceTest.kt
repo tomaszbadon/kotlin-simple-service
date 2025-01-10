@@ -10,17 +10,28 @@ import org.keycloak.OAuth2Constants
 import org.keycloak.admin.client.KeycloakBuilder
 import org.keycloak.representations.AccessTokenResponse
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.test.web.reactive.server.WebTestClient
+
 
 @TestInstance(value = TestInstance.Lifecycle.PER_CLASS)
 abstract class AbstractResourceTest {
+
+    @LocalServerPort
+    protected var port: Int? = null
 
     @Autowired
     private var keycloakContainer: KeycloakContainer? = null
 
     protected var accessToken: AccessTokenResponse? = null
 
+    protected var webClient: WebTestClient? = null
+
     @BeforeAll
-    fun setup() {
+    fun beforeAll() {
+
+        webClient = WebTestClient.bindToServer().baseUrl("http://localhost:$port?").build()
+
         KeycloakBuilder.builder().serverUrl(keycloakContainer?.authServerUrl)
             .realm(REALM_NAME)
             .clientId(CLENT_ID)

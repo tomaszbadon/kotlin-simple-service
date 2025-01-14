@@ -8,12 +8,12 @@ import org.springframework.security.config.annotation.web.socket.EnableWebSocket
 import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager
 
 @Configuration
-//@EnableWebSocketSecurity
+@EnableWebSocketSecurity
 class WebSocketSecurityConfig {
 
-//    @Bean
-//    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<*>> {
-//        return messages.anyMessage().authenticated().build()
-//    }
+    @Bean
+    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<*>> {
+        return messages.anyMessage().authenticated().build()
+    }
 
 }

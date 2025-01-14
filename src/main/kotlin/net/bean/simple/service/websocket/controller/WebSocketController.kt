@@ -9,8 +9,8 @@ import org.springframework.stereotype.Controller
 class WebSocketController(val simpMessagingTemplate: SimpMessagingTemplate) {
 
     @MessageMapping("/hello")
-    fun messageHandler(handler: Any?) {
-        simpMessagingTemplate.convertAndSend("/topic/messages", GreetingInfo("Hello World"))
+    fun messageHandler(message: String?) {
+        simpMessagingTemplate.convertAndSend("/topic/messages", GreetingInfo(message))
     }
 
 }

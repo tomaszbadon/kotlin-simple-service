@@ -11,16 +11,14 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.context.annotation.Import
 import org.springframework.http.*
+import org.springframework.test.context.aot.DisabledInAotMode
 import org.testcontainers.junit.jupiter.Testcontainers
 
+@DisabledInAotMode
 @Testcontainers
 @Import(TestContainersConfiguration::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class MovieResourceTest : AbstractResourceTest() {
-
-    @Autowired
-    private val template: TestRestTemplate? = null
-
+class FilmResourceTest : AbstractResourceTest() {
 
     @Test
     @DisplayName("Authorisation Test With Token - Role ApplicationUser needed")
@@ -28,9 +26,9 @@ class MovieResourceTest : AbstractResourceTest() {
 
         val moviesInfo =
             webClient!!.get().uri("/api/v1/movies").header(HttpHeaders.AUTHORIZATION, "$BEARER${accessToken?.token}")
-                .exchange().expectStatus().isOk.expectBody(MoviesInfo::class.java).returnResult().responseBody;
+                .exchange().expectStatus().isOk.expectBody(MoviesInfo::class.java).returnResult().responseBody
 
-        assertThat(moviesInfo).isNotNull;
+        assertThat(moviesInfo).isNotNull
     }
 
 }

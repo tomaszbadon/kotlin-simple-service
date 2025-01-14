@@ -1,5 +1,7 @@
 package net.bean.simple.service.model
 
-class GreetingInfo(val message: String) {
+data class GreetingInfo(var message: String?) {
+
+    constructor() : this(null)
 
 }

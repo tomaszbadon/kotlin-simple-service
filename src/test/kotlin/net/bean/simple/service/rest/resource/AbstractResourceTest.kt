@@ -25,7 +25,7 @@ abstract class AbstractResourceTest {
 
     protected var accessToken: AccessTokenResponse? = null
 
-    protected var webClient: WebTestClient? = null
+    protected val webClient: WebTestClient? = null
 
     @BeforeAll
     fun beforeAll() {

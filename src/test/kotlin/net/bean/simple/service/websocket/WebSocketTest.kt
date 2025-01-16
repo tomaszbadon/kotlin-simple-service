@@ -91,7 +91,7 @@ class WebSocketTest : AbstractResourceTest() {
                 String.format(URI, port),
                 stompSessionHandler!!
             )
-            //val session = future.get(10, TimeUnit.SECONDS)
+            val session = future.get(10, TimeUnit.SECONDS)
         }.isInstanceOf(ExecutionException::class.java).rootCause().isInstanceOf(ConnectionLostException::class.java)
             .hasMessageContaining("Connection closed")
     }

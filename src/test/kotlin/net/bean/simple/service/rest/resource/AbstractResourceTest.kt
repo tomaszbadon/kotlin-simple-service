@@ -25,7 +25,11 @@ abstract class AbstractResourceTest {
 
     protected var accessToken: AccessTokenResponse? = null
 
-    protected val webClient: WebTestClient? = null
+    private var webClient: WebTestClient? = null
+
+    fun webClient(): WebTestClient {
+        return webClient ?: throw RuntimeException()
+    }
 
     @BeforeAll
     fun beforeAll() {
@@ -40,7 +44,7 @@ abstract class AbstractResourceTest {
             .username("test")
             .password("test")
             .build().use {
-                accessToken = it.tokenManager().accessToken;
+                accessToken = it.tokenManager().accessToken
             }
     }
 

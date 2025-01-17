@@ -23,7 +23,7 @@ class FilmResourceTest : AbstractResourceTest() {
     fun authorisationWithApplicationRoleTest() {
 
         val moviesInfo =
-            webClient().get().uri("/api/v1/movies").header(HttpHeaders.AUTHORIZATION, "$BEARER${accessToken?.token}")
+            webClient.get().uri("/api/v1/movies").header(HttpHeaders.AUTHORIZATION, "$BEARER${accessToken?.token}")
                 .exchange().expectStatus().isOk.expectBody(MoviesInfo::class.java).returnResult().responseBody
 
         assertThat(moviesInfo).isNotNull

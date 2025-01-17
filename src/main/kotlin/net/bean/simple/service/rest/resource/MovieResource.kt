@@ -1,5 +1,6 @@
 package net.bean.simple.service.rest.resource
 
+import net.bean.simple.service.repository.FilmRepository
 import net.bean.simple.service.rest.model.MovieInfo
 import net.bean.simple.service.rest.model.MoviesInfo
 import org.springframework.http.ResponseEntity
@@ -9,11 +10,14 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/movies")
-class MovieResource {
+class MovieResource(val filmRepository: FilmRepository) {
 
     @GetMapping
     fun getMovies(): ResponseEntity<MoviesInfo> {
-        return ResponseEntity.ok(MoviesInfo(listOf(MovieInfo(1, "Titanic", "A story about a ship"))));
+
+        val film = filmRepository.getById(10)
+
+        return ResponseEntity.ok(MoviesInfo(listOf(MovieInfo(film.id, film.title, film.title))))
     }
 
 }

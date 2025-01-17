@@ -1,9 +1,10 @@
 plugins {
 	id 'org.jetbrains.kotlin.jvm' version '1.9.25'
 	id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
-	id 'org.springframework.boot' version '3.4.1'
+	id 'org.springframework.boot' version '3.2.4'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.25'
+	id 'org.graalvm.buildtools.native' version '0.10.4'
 }
 
 group = 'net.bean.simple.service'
@@ -24,20 +25,28 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security:spring-security-core'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
 	implementation 'org.flywaydb:flyway-core'
-	implementation 'org.flywaydb:flyway-mysql'
 	implementation 'org.jetbrains.kotlin:kotlin-reflect'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.mysql:mysql-connector-j'
+	implementation 'org.springframework.security:spring-security-messaging'
+	implementation 'io.github.oshai:kotlin-logging-jvm:7.0.3'
+
+	runtimeOnly 'org.postgresql:postgresql'
+
+	testAndDevelopmentOnly 'org.springframework.boot:spring-boot-devtools'
+	testImplementation "org.mockito.kotlin:mockito-kotlin:5.4.0"
+	testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.testcontainers:junit-jupiter'
-	testImplementation 'org.testcontainers:mysql'
+	testImplementation 'org.testcontainers:postgresql'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'com.github.dasniko:testcontainers-keycloak:3.3.0'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

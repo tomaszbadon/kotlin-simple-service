@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController
 class MovieResource(val filmRepository: FilmRepository) {
 
     @GetMapping
-    fun getMovies(): ResponseEntity<MoviesInfo> {
+    fun getMovies(offset: Int?, limit: Int?, sortBy: String?): ResponseEntity<MoviesInfo> {
 
-        val film = filmRepository.getById(10)
+        val film = filmRepository.getById(2)
 
         return ResponseEntity.ok(MoviesInfo(listOf(MovieInfo(film.id, film.title, film.title))))
     }

@@ -1,3 +1,3 @@
 package net.bean.simple.service.misc
 
-val BEARER: String = "Bearer "
+const val BEARER: String = "Bearer "

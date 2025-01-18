@@ -1,5 +1,5 @@
 @KEYCLOAK_HOST=localhost
-@KEYCLOAK_PORT=49910
+@KEYCLOAK_PORT=51230
 @KEYCLOAK_HTTP_MODE=http
 @KEYCLOAK_URL={{KEYCLOAK_HTTP_MODE}}://{{KEYCLOAK_HOST}}:{{KEYCLOAK_PORT}}
 @KEYCLOAK_ID=simple-microservice
@@ -22,7 +22,7 @@ client_id={{KEYCLOAK_ID}}&client_secret={{KEYCLOAK_SECRET}}&username={{USERNAME}
 @accessToken = {{get_token.response.body.$.access_token}}
 
 
-GET {{{SIMPLE_SERVICE_URL}}/api/v1/movies
+GET {{SIMPLE_SERVICE_URL}}/api/v1/movies
 Content-Type: application/json
 Authorization: BEARER {{accessToken}}
 

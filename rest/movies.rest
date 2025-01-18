@@ -1,0 +1,29 @@
+@KEYCLOAK_HOST=localhost
+@KEYCLOAK_PORT=49910
+@KEYCLOAK_HTTP_MODE=http
+@KEYCLOAK_URL={{KEYCLOAK_HTTP_MODE}}://{{KEYCLOAK_HOST}}:{{KEYCLOAK_PORT}}
+@KEYCLOAK_ID=simple-microservice
+@KEYCLOAK_SECRET=Y1JUH3DVEeZNXKz9UsRH3Y3SyOLAtkNb
+@KEYCLOAK_GRANT_TYPE=password
+@KEYCLOAK_AUTH_REALM=simple-application-realm
+@USERNAME=test
+@PASSWORD=test
+
+@SIMPLE_SERVICE_URL=http://localhost:8080
+#####
+## Get the token utilising the
+# @name get_token
+POST {{KEYCLOAK_URL}}/auth/realms/{{KEYCLOAK_AUTH_REALM}}/protocol/openid-connect/token HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+client_id={{KEYCLOAK_ID}}&client_secret={{KEYCLOAK_SECRET}}&username={{USERNAME}}&password={{PASSWORD}}&grant_type={{KEYCLOAK_GRANT_TYPE}}
+#### Auth Token Response Into Variable (from previous call)
+
+@accessToken = {{get_token.response.body.$.access_token}}
+
+
+GET {{{SIMPLE_SERVICE_URL}}/api/v1/movies
+Content-Type: application/json
+Authorization: BEARER {{accessToken}}
+
+

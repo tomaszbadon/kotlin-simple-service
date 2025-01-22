@@ -9,12 +9,11 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.context.annotation.Bean
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
-import org.testcontainers.utility.DockerImageName
 import org.testcontainers.junit.jupiter.Testcontainers
+import org.testcontainers.utility.DockerImageName
 
 val REALM_NAME = "simple-application-realm"
 val CLENT_ID = "simple-microservice"
@@ -78,7 +77,7 @@ class TestContainersConfiguration {
     }
 
     @Bean
-    @RestartScope
+//    @RestartScope
     fun keycloakContainer(registry: DynamicPropertyRegistry): KeycloakContainer? {
         return keycloak
     }

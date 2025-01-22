@@ -16,10 +16,16 @@ abstract class GenericRepository<T : AbstractEntity, R : JpaRepository<T, Int>>(
     }
 
     fun getPage(offset: Int?, limit: Int?, sortBy: String?): Page<T> {
-        val sort = if (SortingDirection.ASC == SortingDirection.ASC)
-            Sort.by(sortBy ?: "id").ascending()
+
+        val result = Regex("^(asc|desc)\\((.*)\\)\$").find(sortBy?.lowercase() ?: "asc(id)")
+        val direction = result?.groups?.get(1)?.value ?: "asc"
+        val property = result?.groups?.get(2)?.value ?: "id"
+
+
+        val sort = if (SortingDirection.ASC.name.lowercase().equals(direction))
+            Sort.by(property).ascending()
         else
-            Sort.by(sortBy ?: "id").descending()
+            Sort.by(property).descending()
         val pageRequest = PageRequest.of(offset ?: 0, limit ?: 20, sort);
         return jpaRepository.findAll(pageRequest);
     }

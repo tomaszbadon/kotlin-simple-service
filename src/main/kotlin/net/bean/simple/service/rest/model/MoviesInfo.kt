@@ -1,4 +1,6 @@
+// (C)2025
 package net.bean.simple.service.rest.model
 
-class MoviesInfo (val movies: List<MovieInfo>) {
-}
+class MoviesInfo(
+    val movies: List<MovieInfo>,
+)

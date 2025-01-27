@@ -9,7 +9,7 @@
 @USERNAME=test
 @PASSWORD=test
 
-@SIMPLE_SERVICE_URL=http://localhost:8080
+@SIMPLE_SERVICE_URL=https://localhost:8080
 #####
 ## Get the token utilising the
 # @name get_token
@@ -22,7 +22,7 @@ client_id={{KEYCLOAK_ID}}&client_secret={{KEYCLOAK_SECRET}}&username={{USERNAME}
 @accessToken = {{get_token.response.body.$.access_token}}
 
 
-GET {{SIMPLE_SERVICE_URL}}/api/v1/movies?limit=5&offset=0&sortBy=DESC(id)
+GET {{SIMPLE_SERVICE_URL}}/api/v1/movies?limit=5&offset=199&sortBy=ASC(id)
 Content-Type: application/json
 Authorization: BEARER {{accessToken}}
 

@@ -1,3 +1,4 @@
+// (C)2025
 package net.bean.simple.service.configuration
 
 import net.bean.simple.service.misc.ApplicationRole
@@ -23,31 +24,36 @@ import java.util.stream.Collectors
 @Configuration
 @EnableWebSecurity
 class WebSecurityConfiguration {
-
     @Value("\${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private val jwtIssuerUri: String? = null
 
     @Bean
-    fun jwtIssuerAuthenticationManagerResolver(): JwtIssuerAuthenticationManagerResolver {
-        return JwtIssuerAuthenticationManagerResolver.fromTrustedIssuers(jwtIssuerUri)
-    }
+    fun jwtIssuerAuthenticationManagerResolver(): JwtIssuerAuthenticationManagerResolver =
+        JwtIssuerAuthenticationManagerResolver.fromTrustedIssuers(jwtIssuerUri)
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.csrf { obj: CsrfConfigurer<HttpSecurity> -> obj.disable() }
         http.authorizeHttpRequests({ it.requestMatchers("/api/websocket").permitAll() })
-        http.authorizeHttpRequests({ it.requestMatchers(HttpMethod.GET, "/api/v1/movies/**").hasAnyRole(ApplicationRole.ApplicationUser.name) })
-        http.authorizeHttpRequests({ it.requestMatchers(HttpMethod.GET, "/api/greetings/notification/**").hasAnyRole(ApplicationRole.ApplicationAdmin.name) })
+        http.authorizeHttpRequests(
+            {
+                it
+                    .requestMatchers(HttpMethod.GET, "/api/v1/movies/**")
+                    .hasAnyRole(ApplicationRole.ApplicationUser.name)
+            },
+        )
+        http.authorizeHttpRequests({
+            it
+                .requestMatchers(HttpMethod.GET, "/api/greetings/notification/**")
+                .hasAnyRole(ApplicationRole.ApplicationAdmin.name)
+        })
         http.authorizeHttpRequests({ it.anyRequest().authenticated() })
 
         http.oauth2ResourceServer({ it.jwt(Customizer.withDefaults()) })
         return http.build()
     }
 
-    @Bean
-    fun jwtDecoder(): JwtDecoder {
-        return JwtDecoders.fromIssuerLocation(jwtIssuerUri)
-    }
+    @Bean fun jwtDecoder(): JwtDecoder = JwtDecoders.fromIssuerLocation(jwtIssuerUri)
 
     @Bean
     fun jwtAuthenticationConverterForKeycloak(): JwtAuthenticationConverter {
@@ -55,7 +61,8 @@ class WebSecurityConfiguration {
             Converter<Jwt, Collection<GrantedAuthority>> { jwt: Jwt ->
                 val realmAccess = jwt.getClaim<Map<String, Collection<String>>>("realm_access")
                 val roles = realmAccess["roles"]!!
-                roles.stream()
+                roles
+                    .stream()
                     .map { role: String -> SimpleGrantedAuthority("ROLE_$role") }
                     .collect(Collectors.toList())
             }
@@ -65,5 +72,4 @@ class WebSecurityConfiguration {
 
         return jwtAuthenticationConverter
     }
-
 }

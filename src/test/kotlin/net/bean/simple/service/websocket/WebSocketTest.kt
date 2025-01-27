@@ -1,5 +1,11 @@
+/* (C)2025 */
 package net.bean.simple.service.websocket
 
+import java.text.MessageFormat
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeUnit
+import java.util.stream.Stream
+import kotlin.test.Test
 import net.bean.simple.service.TestContainersConfiguration
 import net.bean.simple.service.model.GreetingInfo
 import net.bean.simple.service.rest.resource.AbstractResourceTest
@@ -23,11 +29,6 @@ import org.springframework.web.socket.client.WebSocketClient
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.messaging.WebSocketStompClient
 import org.testcontainers.junit.jupiter.Testcontainers
-import java.text.MessageFormat
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
-import java.util.stream.Stream
-import kotlin.test.Test
 
 @DisabledInAotMode
 @Testcontainers
@@ -35,77 +36,79 @@ import kotlin.test.Test
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class WebSocketTest : AbstractResourceTest() {
 
-    @SpyBean
-    private val webSocketController: WebSocketController? = null
+  @SpyBean private val webSocketController: WebSocketController? = null
 
-    //@Spy
-    private var stompSessionHandler: SimpleStompSessionHandler? = null
+  // @Spy
+  private var stompSessionHandler: SimpleStompSessionHandler? = null
 
-    private val converter: MappingJackson2MessageConverter = MappingJackson2MessageConverter()
+  private val converter: MappingJackson2MessageConverter = MappingJackson2MessageConverter()
 
-    private val URI: String = "ws://localhost:%s/api/websocket"
+  private val URI: String = "ws://localhost:%s/api/websocket"
 
-    private var client: WebSocketClient? = null
+  private var client: WebSocketClient? = null
 
-    private var stompClient: WebSocketStompClient? = null
+  private var stompClient: WebSocketStompClient? = null
 
-    @BeforeEach
-    fun beforeEach() {
-        client = StandardWebSocketClient()
-        stompClient = WebSocketStompClient(client!!)
-        stompClient?.messageConverter = converter
-        stompSessionHandler = spy(SimpleStompSessionHandler())
+  @BeforeEach
+  fun beforeEach() {
+    client = StandardWebSocketClient()
+    stompClient = WebSocketStompClient(client!!)
+    stompClient?.messageConverter = converter
+    stompSessionHandler = spy(SimpleStompSessionHandler())
+  }
+
+  @ParameterizedTest
+  @MethodSource("headers")
+  fun webSocketSecurityTest(
+      httpHeaders: WebSocketHttpHeaders?,
+      stompHeaders: StompHeaders?,
+      stringPayload: String
+  ) {
+    var session: StompSession? = null
+    try {
+      val future =
+          stompClient!!.connectAsync(
+              String.format(URI, port), httpHeaders, stompHeaders, stompSessionHandler!!)
+      session = future.get(10, TimeUnit.SECONDS)
+      session.subscribe("/topic/messages", stompSessionHandler!!)
+      session.send("/app/hello", stringPayload)
+
+      Thread.sleep(1000)
+
+      verify(webSocketController, times(1))?.messageHandler(eq(stringPayload))
+      verify(stompSessionHandler)?.handleFrame(any<StompHeaders>(), eq(GreetingInfo(stringPayload)))
+      verify(stompSessionHandler, never())?.handleException(any(), any(), any(), any(), any())
+      verify(stompSessionHandler, never())?.handleTransportError(any(), any())
+    } finally {
+      if (session != null && session.isConnected) {
+        session.disconnect()
+      }
     }
+  }
 
-    @ParameterizedTest
-    @MethodSource("headers")
-    fun webSocketSecurityTest(httpHeaders: WebSocketHttpHeaders?, stompHeaders: StompHeaders?, stringPayload: String) {
-        var session: StompSession? = null
-        try {
-            val future = stompClient!!.connectAsync(
-                String.format(URI, port), httpHeaders, stompHeaders,
-                stompSessionHandler!!
-            )
-            session = future.get(10, TimeUnit.SECONDS)
-            session.subscribe("/topic/messages", stompSessionHandler!!)
-            session.send("/app/hello", stringPayload)
-
-            Thread.sleep(1000)
-
-            verify(webSocketController, times(1))?.messageHandler(eq(stringPayload))
-            verify(stompSessionHandler)?.handleFrame(any<StompHeaders>(), eq(GreetingInfo(stringPayload)))
-            verify(stompSessionHandler, never())?.handleException(any(), any(), any(), any(), any())
-            verify(stompSessionHandler, never())?.handleTransportError(any(), any())
-
-        } finally {
-            if (session != null && session.isConnected) {
-                session.disconnect()
-            }
+  @Test
+  fun authorisationTest() {
+    assertThatThrownBy {
+          val future = stompClient!!.connectAsync(String.format(URI, port), stompSessionHandler!!)
+          val session = future.get(10, TimeUnit.SECONDS)
         }
-    }
+        .isInstanceOf(ExecutionException::class.java)
+        .rootCause()
+        .isInstanceOf(ConnectionLostException::class.java)
+        .hasMessageContaining("Connection closed")
+  }
 
-    @Test
-    fun authorisationTest() {
-        assertThatThrownBy {
-            val future = stompClient!!.connectAsync(
-                String.format(URI, port),
-                stompSessionHandler!!
-            )
-            val session = future.get(10, TimeUnit.SECONDS)
-        }.isInstanceOf(ExecutionException::class.java).rootCause().isInstanceOf(ConnectionLostException::class.java)
-            .hasMessageContaining("Connection closed")
-    }
+  private fun headers(): Stream<Arguments> {
+    val httpHeaders = WebSocketHttpHeaders()
+    httpHeaders.add(
+        WebSocketHttpHeaders.AUTHORIZATION, MessageFormat.format("Bearer {0}", accessToken?.token))
 
-    private fun headers(): Stream<Arguments> {
-        val httpHeaders = WebSocketHttpHeaders()
-        httpHeaders.add(WebSocketHttpHeaders.AUTHORIZATION, MessageFormat.format("Bearer {0}", accessToken?.token))
+    val stompHeaders = StompHeaders()
+    stompHeaders.add(
+        WebSocketHttpHeaders.AUTHORIZATION, MessageFormat.format("Bearer {0}", accessToken?.token))
 
-        val stompHeaders = StompHeaders()
-        stompHeaders.add(WebSocketHttpHeaders.AUTHORIZATION, MessageFormat.format("Bearer {0}", accessToken?.token))
-
-        return Stream.of(
-            Arguments.of(httpHeaders, StompHeaders(), "PAYLOAD_1"),
-            Arguments.of(WebSocketHttpHeaders(), stompHeaders, "PAYLOAD_2"))
-    }
-
+    return Stream.of(
+        Arguments.of(httpHeaders, StompHeaders(), "PAYLOAD_1"),
+        Arguments.of(WebSocketHttpHeaders(), stompHeaders, "PAYLOAD_2"))
+  }
 }

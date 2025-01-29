@@ -26,6 +26,7 @@ import java.nio.file.StandardOpenOption
 import java.security.KeyStore
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.KeyManagerFactory
+import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
 
 @Timeout(value = 10, unit = TimeUnit.MINUTES)
@@ -46,6 +47,29 @@ abstract class AbstractResourceTest {
 
     @BeforeAll
     fun beforeAll() {
+        val httpClient =
+            HttpClient.create().secure { sslContextSpec -> sslContextSpec.sslContext(sslContext()) }
+
+        _webClient =
+            WebTestClient
+                .bindToServer(ReactorClientHttpConnector(httpClient))
+                .baseUrl("https://localhost:$port")
+                .build()
+
+        KeycloakBuilder
+            .builder()
+            .serverUrl(keycloakContainer?.authServerUrl)
+            .realm(REALM_NAME)
+            .clientId(CLENT_ID)
+            .clientSecret(CLIENT_SECRET)
+            .grantType(OAuth2Constants.PASSWORD)
+            .username("test")
+            .password("test")
+            .build()
+            .use { accessToken = it.tokenManager().accessToken }
+    }
+
+    protected fun sslContext(): SslContext {
         val trustStorePath: Path =
             Paths.get(
                 "/Users/tomaszbadon/git/kotlin-simple-service/dev-tools/certs/client-truststore.p12",
@@ -70,31 +94,40 @@ abstract class AbstractResourceTest {
         keyManagerFactory.init(identity, "changeit".toCharArray())
         identityStream.close()
 
-        val sslContext: SslContext =
-            SslContextBuilder
-                .forClient()
-                .keyManager(keyManagerFactory)
-                .trustManager(trustManagerFactory)
-                .build()
-        val httpClient =
-            HttpClient.create().secure { sslContextSpec -> sslContextSpec.sslContext(sslContext) }
-
-        _webClient =
-            WebTestClient
-                .bindToServer(ReactorClientHttpConnector(httpClient))
-                .baseUrl("https://localhost:$port")
-                .build()
-
-        KeycloakBuilder
-            .builder()
-            .serverUrl(keycloakContainer?.authServerUrl)
-            .realm(REALM_NAME)
-            .clientId(CLENT_ID)
-            .clientSecret(CLIENT_SECRET)
-            .grantType(OAuth2Constants.PASSWORD)
-            .username("test")
-            .password("test")
+        return SslContextBuilder
+            .forClient()
+            .keyManager(keyManagerFactory)
+            .trustManager(trustManagerFactory)
             .build()
-            .use { accessToken = it.tokenManager().accessToken }
+    }
+
+    protected fun SSLContext(): SSLContext {
+        val trustStorePath: Path =
+            Paths.get(
+                "/Users/tomaszbadon/git/kotlin-simple-service/dev-tools/certs/client-truststore.p12",
+            )
+        val trustStoreStream: InputStream =
+            Files.newInputStream(trustStorePath, StandardOpenOption.READ)
+        val trustStore = KeyStore.getInstance("PKCS12")
+        trustStore.load(trustStoreStream, "changeit".toCharArray())
+        val trustManagerFactoryAlgorithm = TrustManagerFactory.getDefaultAlgorithm()
+        val trustManagerFactory = TrustManagerFactory.getInstance(trustManagerFactoryAlgorithm)
+        trustManagerFactory.init(trustStore)
+        trustStoreStream.close()
+
+        val identityPath: Path =
+            Paths.get("/Users/tomaszbadon/git/kotlin-simple-service/dev-tools/certs/client.p12")
+        val identityStream: InputStream = Files.newInputStream(identityPath, StandardOpenOption.READ)
+        val identity = KeyStore.getInstance("PKCS12")
+        identity.load(identityStream, "changeit".toCharArray())
+
+        val keyManagerFactoryAlgorithm = KeyManagerFactory.getDefaultAlgorithm()
+        val keyManagerFactory = KeyManagerFactory.getInstance(keyManagerFactoryAlgorithm)
+        keyManagerFactory.init(identity, "changeit".toCharArray())
+        identityStream.close()
+
+        val sslContext: SSLContext = SSLContext.getInstance("TLS")
+        sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), null)
+        return sslContext
     }
 }

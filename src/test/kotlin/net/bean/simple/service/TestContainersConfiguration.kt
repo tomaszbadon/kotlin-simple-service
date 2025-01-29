@@ -25,7 +25,6 @@ val CLIENT_SECRET = "Y1JUH3DVEeZNXKz9UsRH3Y3SyOLAtkNb"
 @ContextConfiguration(classes = [TestContainersConfiguration::class])
 @ExtendWith(SpringExtension::class)
 class TestContainersConfiguration {
-
     private val logger = LoggerFactory.getLogger(TestContainersConfiguration::class.java)
 
     companion object {

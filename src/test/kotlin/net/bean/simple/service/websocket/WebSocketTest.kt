@@ -50,7 +50,6 @@ class WebSocketTest : AbstractResourceTest() {
 
     @BeforeEach
     fun beforeEach() {
-//        val mapa: Map<String, Object> = mapOf("org.apache.tomcat.websocket.SSL_CONTEXT", SSLContext());
         val hashMap = HashMap<String, Any>();
         hashMap.put("org.apache.tomcat.websocket.SSL_CONTEXT", SSLContext())
         client = StandardWebSocketClient()

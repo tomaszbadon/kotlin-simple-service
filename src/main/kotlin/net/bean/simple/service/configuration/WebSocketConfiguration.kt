@@ -1,3 +1,4 @@
+// (C)2025
 package net.bean.simple.service.configuration
 
 import net.bean.simple.service.websocket.interceptor.AuthInterceptor
@@ -11,12 +12,17 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
 
+/**
+ * @property csrfNoopInterceptor
+ * @property authInterceptor
+ */
 @Configuration
 @EnableWebSocketMessageBroker
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
-class WebSocketConfiguration(val csrfNoopInterceptor: CsrfNoopInterceptor, val authInterceptor: AuthInterceptor) :
-    WebSocketMessageBrokerConfigurer {
-
+class WebSocketConfiguration(
+    val csrfNoopInterceptor: CsrfNoopInterceptor,
+    val authInterceptor: AuthInterceptor,
+) : WebSocketMessageBrokerConfigurer {
     override fun configureMessageBroker(config: MessageBrokerRegistry) {
         config.enableSimpleBroker("/topic")
         config.setApplicationDestinationPrefixes("/app")
@@ -29,5 +35,4 @@ class WebSocketConfiguration(val csrfNoopInterceptor: CsrfNoopInterceptor, val a
     override fun configureClientInboundChannel(registration: ChannelRegistration) {
         registration.interceptors(csrfNoopInterceptor, authInterceptor)
     }
-
 }

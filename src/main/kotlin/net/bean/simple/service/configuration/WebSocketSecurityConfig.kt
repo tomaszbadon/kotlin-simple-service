@@ -1,3 +1,4 @@
+// (C)2025
 package net.bean.simple.service.configuration
 
 import org.springframework.context.annotation.Bean
@@ -10,10 +11,7 @@ import org.springframework.security.messaging.access.intercept.MessageMatcherDel
 @Configuration
 @EnableWebSocketSecurity
 class WebSocketSecurityConfig {
-
     @Bean
-    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<*>> {
-        return messages.anyMessage().authenticated().build()
-    }
-
+    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<*>> =
+        messages.anyMessage().authenticated().build()
 }

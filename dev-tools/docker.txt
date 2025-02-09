@@ -1,0 +1,13 @@
+docker run -p 8081:8080 \
+-e KEYCLOAK_ADMIN=admin \
+-e KEYCLOAK_ADMIN_PASSWORD=admin \
+-v ~/git/kotlin-simple-service/src/test/resources/:/opt/keycloak/data/import \
+quay.io/keycloak/keycloak:24.0.2 start-dev --import-realm
+
+docker run --name some-postgres \
+-p 5432:5432 \
+-e POSTGRES_PASSWORD=password \
+-e POSTGRES_USER=postgres \
+-e POSTGRES_DB=sakila \
+-d postgres:16-alpine
+
